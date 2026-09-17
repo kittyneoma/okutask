@@ -40,7 +40,7 @@ app.use('/api/tasks', require('./routes/tasks'));
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
-    message: 'ACCO API is running',
+    message: 'OkuTask API is running',
     timestamp: new Date().toISOString()
   });
 });

@@ -14,6 +14,12 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const passwordChecks = {
+    length: formData.password.length >= 8,
+    number: /\d/.test(formData.password),
+    confirm: formData.password === formData.confirmPassword && formData.confirmPassword !== ''
+  }
+  
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -27,7 +33,7 @@ const Register = () => {
     setLoading(true);
     setError('');
 
-    // validates password
+    // validates password match
     if (formData.password !== formData.confirmPassword) {
       setError('The passwords do not match');
       setLoading(false);
@@ -60,6 +66,7 @@ const Register = () => {
         )}
 
         <form onSubmit={handleSubmit} className="auth-form">
+          {/* name */}
           <div className="form-group">
             <label htmlFor="name" className="label">
               Full Name <span className="required">*</span>
@@ -77,6 +84,7 @@ const Register = () => {
             />
           </div>
 
+          {/* email */}
           <div className="form-group">
             <label htmlFor="email" className="label">
               Email <span className="required">*</span>
@@ -93,6 +101,7 @@ const Register = () => {
             />
           </div>
 
+          {/* password */}
           <div className="form-group">
             <label htmlFor="password" className="label">
               Password <span className="required">*</span>
@@ -108,8 +117,24 @@ const Register = () => {
               required
               minLength="8"
             />
+
+            {/* password requirements */}
+            {formData.password.length > 0 && (
+              <div className="password-requirements">
+                <p className="req-title">Password requirements:</p>
+                <ul>
+                  <li className={passwordChecks.length ? 'req-met' : 'req-unmet'}>
+                    {passwordChecks.length ? '✓' : '✖'} At least 8 characters
+                  </li>
+                  <li className={passwordChecks.number ? 'req-met' : 'req-unmet'}>
+                    {passwordChecks.number ? '✓' : '✖'} At least one number
+                  </li>
+                </ul>
+              </div>
+            )}
           </div>
 
+          {/* confirm password */}
           <div className="form-group">
             <label htmlFor="confirmPassword" className="label">
               Confirm Password <span className="required">*</span>
@@ -120,11 +145,20 @@ const Register = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="input"
+              className={`input ${
+                formData.confirmPassword.length > 0 
+                  ? (passwordChecks.confirm ? 'input-valid' : 'input-invalid')
+                  : ''
+              }`}
               placeholder="Re-enter your password"
               required
               minLength="8"
             />
+            {formData.confirmPassword.length > 0 && (
+              <span className={passwordChecks.confirm ? 'req-met' : 'req-unmet'}>
+                {passwordChecks.confirm ? '✓ Passwords match' : '✖ Passwords do not match'}
+              </span>
+            )}
           </div>
 
           <button 

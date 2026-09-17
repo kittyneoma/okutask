@@ -1,3 +1,5 @@
+/* client validators */
+
 /* validates email format */
 export const isValidEmail = (email) => {
   const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;

@@ -112,7 +112,7 @@ const Chat = () => {
           </div>
         </div>
 
-        {/* mssg */}
+        {/* msg */}
         <div className="chat-messages">
           {messages.length === 0 && (
             <div className="chat-empty">

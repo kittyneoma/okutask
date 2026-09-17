@@ -9,12 +9,19 @@ const PRIORITIES = [
   { value: 'urgent', label: 'Urgent', color: '#EF5350' },
 ];
 
-const TaskModal = ({ projectId, onClose, onTaskCreated }) => {
+/**
+ * edit/create a task modal
+ * if task goes through it enters edit mode
+ */
+
+const TaskModal = ({ projectId, onClose, onTaskCreated, onTaskUpdated, task }) => {
+  const isEditing = !!task;
+
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    priority: 'medium',
-    dueDate: ''
+    title: task?.title || '',
+    description: task?.description || '',
+    priority: task?.priority || 'medium',
+    dueDate: task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -38,11 +45,17 @@ const TaskModal = ({ projectId, onClose, onTaskCreated }) => {
     try {
       const payload = { ...formData };
       if (!payload.dueDate) delete payload.dueDate;
-      const response = await taskService.createTask(projectId, payload);
-      onTaskCreated(response.data.task);
+
+      if (isEditing) {
+        const response = await taskService.updateTask(task._id, payload);
+        onTaskUpdated(response.data.task);
+      } else {
+        const response = await taskService.createTask(projectId, payload);
+        onTaskCreated(response.data.task);
+      }
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to create task');
+      setError(err.message || `Failed to ${isEditing ? 'update' : 'create'} task`);
     } finally {
       setLoading(false);
     }
@@ -56,9 +69,9 @@ const TaskModal = ({ projectId, onClose, onTaskCreated }) => {
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-container">
 
-        {/* header sin boton X */}
+        {/* header */}
         <div className="modal-header">
-          <h2>New Task</h2>
+          <h2>{isEditing ? 'Edit Task' : 'New Task'}</h2>
         </div>
 
         {error && (
@@ -100,7 +113,7 @@ const TaskModal = ({ projectId, onClose, onTaskCreated }) => {
 
           <div className="modal-divider" />
 
-          {/* priority + date row */}
+          {/* priority n date row*/}
           <div className="task-modal-row">
 
             {/* priority buttons */}
@@ -163,9 +176,8 @@ const TaskModal = ({ projectId, onClose, onTaskCreated }) => {
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? 'Creating...' : '✚ Create Task'}
+              disabled={loading}>
+              {loading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Save Changes' : '✚ Create Task')}
             </button>
           </div>
 

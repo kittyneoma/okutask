@@ -343,7 +343,7 @@ body {
     }
 }
 
-/* smooth anims */
+/* anims */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -443,7 +443,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* divisor */
 .divider {
     height: 1px;
     background: var(--border-light);

@@ -15,14 +15,21 @@ const PRIORITIES = [
   { value: 'urgent', label: 'Urgent', color: '#EF5350' },
 ];
 
-const ProjectModal = ({ onClose, onProjectCreated }) => {
+/**
+ * crete-edit project modal
+ * if project goes through it enter edit mode
+ */
+
+const ProjectModal = ({ onClose, onProjectCreated, onProjectUpdated, project }) => {
+  const isEditing = !!project;
+
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    color: '#2292A4',
-    priority: 'medium',
-    dueDate: '',
-    tags: ''
+    name: project?.name || '',
+    description: project?.description || '',
+    color: project?.color || '#2292A4',
+    priority: project?.priority || 'medium',
+    dueDate: project?.dueDate ? new Date(project.dueDate).toISOString().split('T')[0] : '',
+    tags: project?.tags?.join(',') || ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -55,11 +62,17 @@ const ProjectModal = ({ onClose, onProjectCreated }) => {
           : []
       };
       if (!payload.dueDate) delete payload.dueDate;
-      const response = await projectService.createProject(payload);
-      onProjectCreated(response.data.project);
+
+      if (isEditing) {
+        const response = await projectService.updateProject(project._id, payload);
+        onProjectUpdated(response.data.project);
+      } else {
+        const response = await projectService.createProject(payload);
+        onProjectCreated(response.data.project);
+      }
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to create project');
+      setError(err.message || `Failed to ${isEditing ? 'update' : 'create'} project`);
     } finally {
       setLoading(false);
     }
@@ -74,7 +87,7 @@ const ProjectModal = ({ onClose, onProjectCreated }) => {
       <div className="modal-container">
 
         <div className="modal-header">
-          <h2>New Project</h2>
+          <h2>{isEditing ? 'Edit Project' : 'New Project'}</h2>
         </div>
 
         {error && (
@@ -116,7 +129,7 @@ const ProjectModal = ({ onClose, onProjectCreated }) => {
 
           <div className="modal-divider" />
 
-          {/* color row + priority/date */}
+          {/* color row n priority date */}
           <div className="modal-row">
 
             {/* color */}
@@ -142,7 +155,7 @@ const ProjectModal = ({ onClose, onProjectCreated }) => {
               </div>
             </div>
 
-            {/* priority nd date */}
+            {/* priority n date */}
             <div className="form-group modal-col">
               <label className="label">Priority</label>
 
@@ -220,7 +233,10 @@ const ProjectModal = ({ onClose, onProjectCreated }) => {
               className="btn btn-primary"
               disabled={loading}
             >
-              {loading ? 'Creating...' : '✚ Create Project'}
+              {loading 
+                ? (isEditing ? 'Saving...' : 'Creating...') 
+                : (isEditing ? 'Save Changes' : '✚ Create Project')
+              }
             </button>
           </div>
 

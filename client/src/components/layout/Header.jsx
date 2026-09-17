@@ -13,12 +13,38 @@ const Header = () => {
     authService.logout();
     navigate('/login');
   };
+  
+  const getInitials = (name) => {
+    if (!name) return '?';
+
+    const parts = name.trim().split(' ');
+
+    // if they have name and last name
+    if (parts.lenght > 1) {
+        return parts
+            .map(word => word[0])
+            .join('')
+            .substring(0, 2)
+            .toUpperCase();
+    }
+
+    // only name
+    const singleName = parts[0];
+    if (singleName.lenght >= 2) {
+        return singleName.substring(0, 2).toUpperCase();
+    }
+
+    return (
+        singleName[0] +
+        singleName[singleName.lenght -1]
+    ).toUpperCase();
+  };
 
   return (
     <>
       <header className="header">
         <Link to={isAuthenticated ? "/dashboard" : "/"} className="logo">
-          ACCO
+          OkuTask
         </Link>
 
         {isAuthenticated ? (
@@ -33,10 +59,7 @@ const Header = () => {
               onClick={() => setShowMenu(!showMenu)}
             >
               <div className="user-avatar">
-                <img 
-                  src={currentUser?.avatar || 'https://ui-avatars.com/api/?background=2292A4&color=fff'} 
-                  alt={currentUser?.name} 
-                />
+                {getInitials(currentUser?.name)}
               </div>
               <span className="user-name">{currentUser?.name}</span>
               

@@ -1,0 +1,19 @@
+{
+  "name": "okutask-microservices",
+  "version": "2.0.0",
+  "description": "OkuTask Task Manager - Microservices Arquitecture",
+  "scripts": {
+    "dev": "concurrently --names \"GW,AUTH,PROJ,TASKS,NOTIF,CHAT\" --prefix-colors \"cyan,yellow,green,blue,magenta,white\" \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:projects\" \"npm run dev:tasks\" \"npm run dev:notifications\" \"npm run dev:chat\"",
+    "dev:gateway":       "cd services/gateway       && npm run dev",
+    "dev:auth":          "cd services/auth          && npm run dev",
+    "dev:projects":      "cd services/projects      && npm run dev",
+    "dev:tasks":         "cd services/tasks         && npm run dev",
+    "dev:notifications": "cd services/notifications && npm run dev",
+    "dev:chat":          "cd services/chat          && npm run dev"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "concurrently": "^8.2.0",
+    "socket.io-client": "^4.8.3"
+  }
+}

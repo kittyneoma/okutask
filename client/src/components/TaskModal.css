@@ -1,4 +1,3 @@
-/* textarea  */
 .modal-textarea {
   width: 100%;
   height: 120px;
@@ -42,14 +41,13 @@
   background: var(--bg-primary);
 }
 
-/* priority row + date */
+/* prirority n date row */
 .task-modal-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-lg);
 }
 
-/* priority buttons */
 .priority-buttons {
   display: flex;
   flex-direction: column;
@@ -84,7 +82,6 @@
   transition: background-color 0.15s ease;
 }
 
-/* cancel */
 .btn-cancel {
   background: transparent;
   color: #b85c5c;

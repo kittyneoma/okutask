@@ -75,6 +75,57 @@
     text-decoration: underline;
 }
 
+.password-requirements {
+    margin-top: 8px;
+    padding: 10px 14px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+}
+
+.req-title {
+    font-size: var(--text-sm);
+    color: var(--text-light);
+    font-weight: var(--font-medium);
+    margin: 0 0 6px;
+    letter-spacing: 0.4px;
+}
+
+.password-requirements ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.password-requirements li {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    transition: color 0.2s ease;
+}
+
+.req-met {
+    color: #4CAF50;
+    font-size: var(--text-sm);
+
+}
+
+.req-unmet {
+    color: var(--text-light);
+    font-size: var(--text-sm);
+
+}
+
+.input-valid {
+    border-color: #4CAF50 !important;
+}
+
+.input-invalid {
+    border-color: var(--error) !important;
+}
+
 @media (max-width: 768px) {
     .auth-container {
         padding: var(--spacing-lg);

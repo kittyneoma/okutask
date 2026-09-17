@@ -1,0 +1,131 @@
+name: CI/CD - OkuTask Microservices
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # MongoDB from dependent services
+  test-db-services:
+    name: Tests (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [auth, projects, tasks]
+
+    services:
+      mongo:
+        image: mongo:6
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "echo 'db.runCommand(\"ping\").ok' | mongosh --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Download code
+        uses: actions/checkout@v4
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies from shared/
+        working-directory: ./shared
+        run: npm ci
+
+      - name: Install dependencies froom services/${{ matrix.service }}
+        working-directory: ./services/${{ matrix.service }}
+        run: npm ci
+
+      - name: Execute tests (Jest + Supertest)
+        working-directory: ./services/${{ matrix.service }}
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://127.0.0.1:27017/okutask_ci
+          JWT_SECRET: ci-test-secret-no-use-in-production
+        run: npm test
+
+  # services without data base
+  test-standalone-services:
+    name: Tests (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [gateway, chat, notifications]
+
+    steps:
+      - name: Donwload code
+        uses: actions/checkout@v4
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies from services/${{ matrix.service }}
+        working-directory: ./services/${{ matrix.service }}
+        run: npm ci
+
+      - name: Execute tests (Jest + Supertest)
+        working-directory: ./services/${{ matrix.service }}
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ci-test-secret-no-use-in-production
+        run: npm test
+
+  # client build
+  build-client:
+    name: Cliente Build (React + Vite)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download code
+        uses: actions/checkout@v4
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Compile production (Vite build)
+        working-directory: ./client
+        run: npm run build
+
+  # build docker img
+  build-docker-images:
+    name: Build Docker images
+    runs-on: ubuntu-latest
+    needs: [test-db-services, test-standalone-services, build-client]
+    steps:
+      - name: Download code
+        uses: actions/checkout@v4
+
+      - name: Build image from auth
+        run: docker build -t okutask-auth:ci -f services/auth/Dockerfile .
+
+      - name: Build image from projects
+        run: docker build -t okutask-projects:ci -f services/projects/Dockerfile .
+
+      - name: Build image from tasks
+        run: docker build -t ocutask-tasks:ci -f services/tasks/Dockerfile .
+
+      - name: Build image from gateway
+        run: docker build -t okutask-gateway:ci ./services/gateway
+
+      - name: Build image from chat
+        run: docker build -t okutask-chat:ci ./services/chat
+
+      - name: Build image from notifications
+        run: docker build -t okutask-notifications:ci ./services/notifications
+
+      - name: Build image froml cliente
+        run: docker build -t okutask-client:ci ./client

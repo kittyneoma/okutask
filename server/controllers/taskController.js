@@ -245,7 +245,7 @@ exports.deleteTask = async (req, res, next) => {
       });
     }
 
-    await task.remove();
+    await Task.findByIdAndDelete(req.params.id);
 
     res.json({
       success: true,

@@ -58,11 +58,17 @@
 }
 
 .user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-full);
-    overflow: hidden;
-    border: 2px solid var(--primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    user-select: none;
 }
 
 .user-avatar img {
@@ -100,6 +106,8 @@
     border: none;
     background: none;
     color: var(--text-primary);
+    text-decoration: none;
+    font-family: var(--font-primary);
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
     cursor: pointer;

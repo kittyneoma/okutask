@@ -213,7 +213,8 @@ exports.deleteProject = async (req, res, next) => {
     await Task.deleteMany({ project: project._id });
 
     // deletes project
-    await project.remove();
+    await Project.findByIdAndDelete(req.params.id);
+    await Task.deleteMany({ project: req.params.id })
 
     res.json({
       success: true,

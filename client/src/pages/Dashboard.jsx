@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import projectService from '../services/projectService';
 import ProjectModal from '../components/ProjectModal';
+import ConfirmModal from '../components/ConfirmModal';
+import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
+
+const PROJECT_STATUSES = ['active', 'on-hold', 'completed', 'archived'];
 
 const Dashboard = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   useEffect(() => {
     loadProjects();
@@ -25,9 +30,32 @@ const Dashboard = () => {
     }
   };
 
-  // adds new project to list without refresh
+  // adds new project to list 
   const handleProjectCreated = (newProject) => {
     setProjects(prev => [{ ...newProject, progress: 0 }, ...prev]);
+  };
+
+  // updates status project
+  const handleStatusChange = async (e, projectId) => {
+    const newStatus = e.target.value;
+    try {
+      await projectService.updateProject(projectId, { status: newStatus });
+      setProjects(prev => prev.map(p => p._id === projectId ? { ...p, status: newStatus } : p));
+    } catch (err) {
+      console.error('Failed to update project status', err);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!confirmDelete) return;
+    try {
+      await projectService.deleteProject(confirmDelete.id);
+      setProjects(prev => prev.filter(p => p._id !== confirmDelete.id));
+    } catch (err) {
+      console.error('Delete failed', err);
+  } finally {
+      setConfirmDelete(null);
+    }
   };
 
   if (loading) {
@@ -71,17 +99,41 @@ const Dashboard = () => {
       ) : (
         <div className="projects-grid">
           {projects.map(project => (
-            <Link
-              key={project._id}
-              to={`/projects/${project._id}`}
+            <div
+                key={project._id}
               className="project-card card"
               style={{ borderLeftColor: project.color }}
+              onClick={() => navigate(`/projects/${project._id}`)}
             >
               <div className="project-header">
                 <h3>{project.name}</h3>
-                <span className={`status-badge status-${project.status}`}>
-                  {project.status}
-                </span>
+                {/* editable status */}
+                <div onClick={e => e.stopPropagation()}>
+                  <select
+                    className={`status-select status-${project.status}`}
+                    value={project.status}
+                    onChange={(e) => handleStatusChange(e, project._id)}
+                    onClick={e => e.preventDefault()}
+                  >
+                    {PROJECT_STATUSES.map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  className="action-btn delete-btn card-delete-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    
+                      setConfirmDelete({
+                          id: project._id,
+                          name: project.name
+                      });
+                    }}
+                  title="Delete Project"
+                >
+                  Delete
+                </button>
               </div>
 
               <p className="project-description">{project.description}</p>
@@ -107,16 +159,27 @@ const Dashboard = () => {
                   {project.taskCount || 0} Tasks
                 </span>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}
 
-      {/* new project modal */}
+      {/* modals */}
       {showModal && (
         <ProjectModal
           onClose={() => setShowModal(false)}
           onProjectCreated={handleProjectCreated}
+          onProjectUpdated={() => {}}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmModal
+          message="Delete Project"
+          detail={`"${confirmDelete.name}" and all its tasks will be permanently deleted.`}
+          confirmText="Yes, Delete"
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setConfirmDelete(null)}
         />
       )}
 

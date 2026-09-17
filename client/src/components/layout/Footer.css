@@ -24,7 +24,7 @@
 
 .footer-links {
     display: flex;
-    gap: var(--spaciing-lg);
+    gap: var(--spacing-lg);
 }
 
 .footer-links a {

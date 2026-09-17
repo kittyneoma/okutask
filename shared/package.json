@@ -1,0 +1,12 @@
+{
+  "name": "okutask-shared",
+  "version": "1.0.0",
+  "description": "Shared code between OkuTask microservices: Mongoose models and authentication/validations middlewares",
+  "private": true,
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.0"
+  }
+}
