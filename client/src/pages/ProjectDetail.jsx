@@ -4,7 +4,7 @@ import projectService from '../services/projectService';
 import taskService from '../services/taskService';
 import TaskModal from '../components/TaskModal';
 import ProjectModal from '../components/ProjectModal';
-import calendarIcon from '../icons/calendar-icon.png';
+import calendarIcon from '../icons/icon-calendar.png';
 import ConfirmModal from '../components/ConfirmModal';
 import './ProjectDetail.css';
 
