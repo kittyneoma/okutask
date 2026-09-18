@@ -43,8 +43,8 @@
 
     /* border radius */
     --radius-sm: 6px;
-    --radius-md: 10pz;
-    --radius-lg: 14px;;
+    --radius-md: 10px;
+    --radius-lg: 14px;
     --radius-xl: 20px;
     --radius-full: 9999px;
 
@@ -52,7 +52,7 @@
     --spacing-xs: 4px;
     --spacing-sm: 8px;
     --spacing-md: 16px;
-    --sapcing-lg: 24px;
+    --spacing-lg: 24px;
     --spacing-xl: 32px;
     --spacing-2xl: 48px;
 

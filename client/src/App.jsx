@@ -1,3 +1,5 @@
+import './styles/global.css';
+
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import authService from './services/authService';
 
@@ -10,8 +12,6 @@ import Chat from './pages/Chat';
 
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
-
-import './styles/global.css';
 
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = authService.isAuthenticated();

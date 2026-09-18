@@ -20,7 +20,7 @@ const Header = () => {
     const parts = name.trim().split(' ');
 
     // if they have name and last name
-    if (parts.lenght > 1) {
+    if (parts.length > 1) {
         return parts
             .map(word => word[0])
             .join('')
@@ -30,13 +30,13 @@ const Header = () => {
 
     // only name
     const singleName = parts[0];
-    if (singleName.lenght >= 2) {
+    if (singleName.length >= 2) {
         return singleName.substring(0, 2).toUpperCase();
     }
 
     return (
         singleName[0] +
-        singleName[singleName.lenght -1]
+        singleName[singleName.length -1]
     ).toUpperCase();
   };
 

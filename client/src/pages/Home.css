@@ -81,6 +81,12 @@
     filter: grayscale(0.2);
 }
 
+.feature-icon img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
 .feature-card h3 {
     color: var(--text-primary);
     font-size: var(--text-lg);
