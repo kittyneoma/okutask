@@ -32,9 +32,11 @@ exports.getProjects = async (req, res, next) => {
     const projectsWithProgress = await Promise.all(
       projects.map(async (project) => {
         const progress = await project.calculateProgress();
+        const taskCount = await Task.countDocuments({ project: project._id });
         return {
           ...project.toObject(),
-          progress
+          progress,
+          taskCount
         };
       })
     );
