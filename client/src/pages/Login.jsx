@@ -39,7 +39,7 @@ const Login = () => {
     <div className="auth-container">
       <div className="auth-card card">
         <div className="auth-header">
-          <h1>Welcome to ACCO</h1>
+          <h1>Welcome to OkuTask</h1>
           <p>Sign in to continue</p>
         </div>
 

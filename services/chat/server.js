@@ -26,7 +26,7 @@ const io = new Server(server, {
 });
 
 // middlewares
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5137', credentials: true}));
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true}));
 app.use(express.json());
 app.use(morgan('dev'));
 

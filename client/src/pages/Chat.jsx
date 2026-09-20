@@ -4,7 +4,7 @@ import authService from '../services/authService';
 import { Link } from 'react-router-dom';
 import './Chat.css';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3005';
 
 const Chat = () => {
   const [messages, setMessages]     = useState([]);

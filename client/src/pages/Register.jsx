@@ -55,7 +55,7 @@ const Register = () => {
     <div className="auth-container">
       <div className="auth-card card">
         <div className="auth-header">
-          <h1>Join ACCO</h1>
+          <h1>Join OkuTask</h1>
           <p>Create your account and start organizing your projects</p>
         </div>
 
