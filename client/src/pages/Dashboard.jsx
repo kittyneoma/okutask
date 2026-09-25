@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all')
 
   useEffect(() => {
     loadProjects();
