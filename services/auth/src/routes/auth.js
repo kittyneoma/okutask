@@ -6,7 +6,8 @@ const {
   getMe,
   updateProfile,
   changePassword,
-  logout
+  logout,
+  lookupByEmail
 } = require('../controllers/authController');
 const { protect } = require('../../../../shared/middleware/auth');
 const {
@@ -20,6 +21,7 @@ router.post('/login', loginValidation, login);
 
 // protected routes
 router.get('/me', protect, getMe);
+router.get('/users/lookup', protect, lookupByEmail);
 router.put('/profile', protect, updateProfile);
 router.put('/password', protect, changePassword);
 router.post('/logout', protect, logout);

@@ -98,21 +98,35 @@ io.on('connection', (socket) => {
         socket.leave(`project:${projectId}`);
     });
 
-    // chat msg 
-    socket.on('chat:message', ({ text }) => {
+    // chat msg - txt n opt as data URL base64
+    socket.on('chat:message', ({ text, image }) => {
         const user = connectedUsers.get(socket.id);
-        if (!user || !text?.trim()) return;
+        if (!user) return;
+        if (!text?.trim() && !image) return;
+
+        // size limit 4 image - 500KB on base64
+        if (image && image.length > 700000) {
+            return socket.emit('chat:error', { message: 'Image is too large (max ~500KB)' });
+        }
 
         const message = {
             id: `${socket.id}-${Date.now()}`,
             socketId: socket.id,
-            text: text.trim(),
+            text: text?.trim() || '',
+            image: image || null,
             sender: user.name,
             avatar: user.avatar,
             timestamp: new Date().toISOString(),
         };
 
         io.emit('chat:message', message);
+    });
+
+    // "typing" indicator
+    socket.on('chat:typing', ({ isTyping }) => {
+        const user = connectedUsers.get(socket.id);
+        if (!user) return;
+        socket.broadcast.emit('chat:typing', { sender:user.name, isTyping: !!isTyping });
     });
 
     // disconnect

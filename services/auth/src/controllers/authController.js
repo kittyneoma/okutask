@@ -240,4 +240,37 @@ exports.logout = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    searches user by exact email to add as collaborator from a project
+ * @route   GET /api/auth/users/lookup?email=...
+ * @access  Private
+ */
+exports.lookupByEmail = async (req, res, next) => {
+  try {
+    const { email } = req.query;
+    if (!email) {
+      return res.status(400).json({ success:false, message: 'Email query param is required' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'No user found with that email' });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.getAvatarUrl(),
+        }
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 /*git */

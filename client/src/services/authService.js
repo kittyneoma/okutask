@@ -50,6 +50,16 @@ const authService = {
     }
   },
 
+  // searches user by email to add as collab
+  lookupByEmail: async (email) => {
+    try {
+      const response = await api.get(`/auth/users/lookup?email=${encodeURIComponent(email)}`);
+      return  response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // updates profile
   updateProfile: async (userData) => {
     try {

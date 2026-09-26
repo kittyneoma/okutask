@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import projectService from '../services/projectService';
 import taskService from '../services/taskService';
+import authService from '../services/authService';
 import TaskModal from '../components/TaskModal';
 import ProjectModal from '../components/ProjectModal';
 import calendarIcon from '../icons/icon-calendar.png';
@@ -31,6 +32,11 @@ const ProjectDetail = () => {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  // equipo del proyecto: agregar colaboradores por email
+  const [collabEmail, setCollabEmail] = useState('');
+  const [collabError, setCollabError] = useState('');
+  const [collabLoading, setCollabLoading] = useState(false);
+  const currentUser = authService.getCurrentUser();
 
   useEffect(() => {
     loadProjectData();
@@ -95,6 +101,25 @@ const ProjectDetail = () => {
   const handleProjectUpdated = (updatedProject) => {
     setProject(prev => ({ ...prev, ...updatedProject }));
   }
+
+  // searches user by email n adds it as collaborator
+  const handleAddCollaborator = async (e) => {
+    e.preventDefault();
+    if (!collabEmail.trim()) return;
+    setCollabError('');
+    setCollabLoading(true);
+    try {
+      const lookup = await authService.lookupByEmail(collabEmail.trim());
+      const foundUser = lookup.data.user;
+      const res = await projectService.addCollaborator(project._id, foundUser.id);
+      setProject(prev => ({ ...prev, collaborators: res.data.project.collaborators }));
+      setCollabEmail('');
+    } catch (err) {
+      setCollabError(err?.response?.data?.message || err.message || 'Could not add collaborator');
+    } finally {
+      setCollabLoading(false);
+    }
+  };
 
   const handleTaskUpdated = (updatedTask) => {
     setTasks(prev => prev.map(t => t._id === updatedTask._id ? updatedTask : t));
@@ -199,6 +224,41 @@ const ProjectDetail = () => {
         {project.description && (
           <p className="project-detail-desc">{project.description}</p>
         )}
+
+        {/* team project - owner n collab */}
+        <div className="project-team">
+          <div className="team-members">
+            <span className="team-label">Team:</span>
+            <div className="team-avatar owner-avatar" title="Owner">
+              {currentUser?.id === project.owner ? (currentUser?.name?.charAt(0).toUpperCase() || 'O') : 'O'}
+            </div>
+            {(project.collaborators || []).map((c) => (
+              <div key={c._id} className="team-avatar" title={`${c.name} (${c.email})`}>
+                {c.name?.charAt(0).toUpperCase()}
+              </div>
+            ))}
+          </div>
+
+          {currentUser?.id === project.owner && (
+            <form className="add-collaborator-form" onSubmit={handleAddCollaborator}>
+              <input
+                type="email"
+                placeholder="Add teammate by email"
+                value={collabEmail}
+                onChange={(e) => setCollabEmail(e.target.value)}
+                className="add-collaborator-input"
+              />
+              <button
+                type="submit"
+                className="btn btn-outline btn-sm"
+                disabled={collabLoading || !collabEmail.trim()}
+              >
+                {collabLoading ? 'Adding...' : '+ Add'}
+              </button>
+            </form>
+          )}
+          {collabError && <p className="collab-error">{collabError}</p>}
+        </div>
       </div>
 
       {/* stats */}

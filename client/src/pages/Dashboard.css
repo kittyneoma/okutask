@@ -22,6 +22,16 @@
     letter-spacing: -0.5px;
 }
 
+.status-filter-select {
+    padding: 8px 12px;
+    border-radius: var(--radius-md, 8px);
+    border: 1px solid var(--border-color, #ccc);
+    background: var(--text-primary);
+    color: var(--text-primary);
+    font-size: var(--text-sm, 14px);
+    cursor: pointer;
+}
+
 .empty-state {
     text-align: center;
     padding: var(--spacing-2xl);

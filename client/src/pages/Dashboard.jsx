@@ -14,14 +14,17 @@ const Dashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     loadProjects();
-  }, []);
+  }, [statusFilter]);
 
   const loadProjects = async () => {
     try {
-      const response = await projectService.getProjects();
+      setLoading(true);
+      const filters =statusFilter !== 'all' ? { status: statusFilter } : {};
+      const response = await projectService.getProjects(filters);
       setProjects(response.data.projects);
     } catch (err) {
       setError(err.message || 'Failed to load projects');
@@ -71,6 +74,18 @@ const Dashboard = () => {
 
       <div className="dashboard-header">
         <h1>My Projects</h1>
+        <div className="dashboard-header-actions">
+          <select
+            className="status-filter-select"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filter projects by status"
+          >
+            <option value="all">All statuses</option>
+            {PROJECT_STATUSES.map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
         <button
           className="btn btn-primary"
           onClick={() => setShowModal(true)}
@@ -78,6 +93,7 @@ const Dashboard = () => {
           ✚ New Project
         </button>
       </div>
+    </div>
 
       {error && (
         <div className="alert alert-error">
