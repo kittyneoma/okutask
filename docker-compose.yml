@@ -1,0 +1,105 @@
+version: "3.9"
+
+# orchestration of the 6 microservices + OkuTask client
+
+services:
+  gateway:
+    build:
+      context: ./services/gateway
+    ports:
+      - "${GATEWAY_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:5173}
+      - AUTH_SERVICE_URL=http://auth:3001
+      - PROJECTS_SERVICE_URL=http://projects:3002
+      - TASKS_SERVICE_URL=http://tasks:3003
+      - NOTIFICATIONS_SERVICE_URL=http://notifications:3004
+      - CHAT_SERVICE_URL=http://chat:3005
+    depends_on:
+      - auth
+      - projects
+      - tasks
+      - chat
+      - notifications
+    networks:
+      - okutask-net
+    restart: unless-stopped
+
+  auth:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRE=${JWT_EXPIRE:-30d}
+    networks:
+      - okutask-net
+    restart: unless-stopped
+
+  projects:
+    build:
+      context: .
+      dockerfile: services/projects/Dockerfile
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+    networks:
+      - okutask-net
+    restart: unless-stopped
+
+  tasks:
+    build:
+      context: .
+      dockerfile: services/tasks/Dockerfile
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+    networks:
+      - okutask-net
+    restart: unless-stopped
+
+  chat:
+    build:
+      context: ./services/chat
+    ports:
+      # client connects directly to this port via WebSocket bypassing the Gateway
+      - "${CHAT_PORT:-3005}:3005"
+    environment:
+      - NODE_ENV=production
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:5173}
+      - JWT_SECRET=${JWT_SECRET}
+    networks:
+      - okutask-net
+    restart: unless-stopped
+
+  notifications:
+    build:
+      context: ./services/notifications
+    environment:
+      - NODE_ENV=production
+      - CHAT_SERVICE_URL=http://chat:3005
+    networks:
+      - okutask-net
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+    ports:
+      - "5173:80"
+    depends_on:
+      - gateway
+    networks:
+      - okutask-net
+    restart: unless-stopped
+
+networks:
+  okutask-net:
+    driver: bridge
