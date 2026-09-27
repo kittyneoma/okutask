@@ -167,6 +167,22 @@ const Dashboard = () => {
                 </div>
               </div>
 
+              {project.collaborators?.length > 0 && (
+                <div className="card-team">
+                  <span className="card-team-label">Team:</span>
+                  {project.collaborators.slice(0, 4).map(c => (
+                    <div key={c._id} className="card-team-avatar" title={c.name}>
+                      {c.name?.charAt(0).toUpperCase()}
+                    </div>
+                  ))}
+                  {project.collaborators.length > 4 && (
+                    <div className="card-team-avatar card-team-more">
+                      +{project.collaborators.length - 4}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="project-footer">
                 <span className={`priority-badge priority-${project.priority}`}>
                   {project.priority}

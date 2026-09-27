@@ -10,8 +10,11 @@ exports.getProjects = async (req, res, next) => {
     const { status, priority, search } = req.query;
 
     let filters = {
-      owner: req.user.id,
-      isArchived: false
+      isArchived: false,
+      $or: [
+        { owner: req.user.id },
+        { collaborators: req.user.id }
+      ]
     };
 
     if (status) filters.status = status;

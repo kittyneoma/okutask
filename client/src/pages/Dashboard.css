@@ -22,13 +22,19 @@
     letter-spacing: -0.5px;
 }
 
+.dashboard-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
 .status-filter-select {
     padding: 8px 12px;
-    border-radius: var(--radius-md, 8px);
-    border: 1px solid var(--border-color, #ccc);
-    background: var(--text-primary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-medium);
+    background: var(--bg-card);
     color: var(--text-primary);
-    font-size: var(--text-sm, 14px);
+    font-size: var(--text-sm);
     cursor: pointer;
 }
 
@@ -144,6 +150,34 @@
     font-size: var(--text-sm);
     color: var(--text-primary);
     font-weight: var(--font-semibold);
+}
+
+.card-team {
+    font-size: var(--text-xs);
+    color: var(--text-light);
+    margin-right: 4px;
+}
+
+.card-team-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--secondary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: var(--font-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-card);
+    margin-left: -6px;
+}
+
+.card-team-avatar:first-of-type {
+    margin-left: 0;
+}
+.card-team-more {
+    background: var(--text-light);
 }
 
 .project-footer {
