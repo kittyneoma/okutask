@@ -29,7 +29,7 @@ router.route('/:id')
 
 router.put('/:id/archive', toggleArchive);
 router.post('/:id/collaborators', addCollaborator);
-router.delete('/:id/colaborators/:userId', removeCollaborator);
+router.delete('/:id/collaborators/:userId', removeCollaborator);
 router.get('/:id/stats', getProjectStats);
 
 module.exports = router;

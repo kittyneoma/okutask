@@ -17,7 +17,7 @@ const Chat = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageError, setImageError] = useState('');
   const [typingUsers, setTypingUsers] =useState([]);
-  const [lighboxImage, setLighboxImage] = useState(null);
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   const socketRef  = useRef(null);
   const bottomRef  = useRef(null);
@@ -213,7 +213,7 @@ const Chat = () => {
                         src={msg.image}
                         alt="shared"
                         className="chat-image"
-                        onClick={() => setLighboxImage=(msg.image)} 
+                        onClick={() => setLightboxImage(msg.image)} 
                       />
                     )}
                     {msg.text && <p>{msg.text}</p>}
@@ -268,7 +268,7 @@ const Chat = () => {
           <textarea
             className="chat-input"
             value={text}
-            onChange={e => setText(e.target.value)}
+            onChange={handleTextChange}
             onKeyDown={handleKey}
             placeholder="Write a message... (Enter to send)"
             rows={1}
@@ -285,13 +285,13 @@ const Chat = () => {
 
       </div>
 
-      {/* lighbox - msg img 2 full size */}
-      {lighboxImage && (
-        <div className="lighbox-overlay" onClick={() => setLighboxImage(null)}>
-          <img src={lighboxImage} alt="shared full size" className="lighbox-image" />
+      {/* lightbox - msg img 2 full size */}
+      {lightboxImage && (
+        <div className="lightbox-overlay" onClick={() => setLightboxImage(null)}>
+          <img src={lightboxImage} alt="shared full size" className="lightbox-image" />
           <button 
             className="lightbox-close"
-            onClick={() => setLighboxImage(null)}
+            onClick={() => setLightboxImage(null)}
             title="Close"
           >
             ✕
