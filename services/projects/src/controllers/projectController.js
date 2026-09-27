@@ -265,6 +265,49 @@ exports.addCollaborator = async (req, res, next) => {
 };
 
 /**
+ * @desc    removes a collaborator from a project
+ * @route   DELETE /api/projects/:id/collaborators/:userId
+ * @access  Private
+ */
+exports.removeCollaborator = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const project = await  Project.findById(req.params.id);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Projects not found'
+      });
+    }
+
+    if (project.owner.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the owner can remove collaborators'
+      });
+    }
+
+    const wasCollaborator = project.collaborators.some((c) => c.toString() === userId);
+    if (!wasCollaborator) {
+      return res.status(400).json({ succes: false, message: 'User is not a collaborator' });
+    }
+
+    project.collaborators = project.collaborators.filter((c) => c.toString() !== userId);
+    await project.save();
+    await project.populate('collaborators', 'name email avatar');
+
+    res.json({
+      success: true,
+      message: 'Collaborator removed successfully',
+      data: { project }
+    });
+  } catch (error) {
+    next(error)
+  }
+};
+
+/**
  * @desc    gets project stats
  * @route   GET /projects/:id/stats
  * @access  Private

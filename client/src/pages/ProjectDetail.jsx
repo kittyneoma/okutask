@@ -5,6 +5,7 @@ import taskService from '../services/taskService';
 import authService from '../services/authService';
 import TaskModal from '../components/TaskModal';
 import ProjectModal from '../components/ProjectModal';
+import TeamModal from '../components/TeamModal';
 import calendarIcon from '../icons/icon-calendar.png';
 import ConfirmModal from '../components/ConfirmModal';
 import './ProjectDetail.css';
@@ -32,10 +33,8 @@ const ProjectDetail = () => {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  // equipo del proyecto: agregar colaboradores por email
-  const [collabEmail, setCollabEmail] = useState('');
-  const [collabError, setCollabError] = useState('');
-  const [collabLoading, setCollabLoading] = useState(false);
+  const [showTeamModal, setShowTeamModal] = useState(false);
+
   const currentUser = authService.getCurrentUser();
 
   useEffect(() => {
@@ -102,23 +101,9 @@ const ProjectDetail = () => {
     setProject(prev => ({ ...prev, ...updatedProject }));
   }
 
-  // searches user by email n adds it as collaborator
-  const handleAddCollaborator = async (e) => {
-    e.preventDefault();
-    if (!collabEmail.trim()) return;
-    setCollabError('');
-    setCollabLoading(true);
-    try {
-      const lookup = await authService.lookupByEmail(collabEmail.trim());
-      const foundUser = lookup.data.user;
-      const res = await projectService.addCollaborator(project._id, foundUser.id);
-      setProject(prev => ({ ...prev, collaborators: res.data.project.collaborators }));
-      setCollabEmail('');
-    } catch (err) {
-      setCollabError(err?.response?.data?.message || err.message || 'Could not add collaborator');
-    } finally {
-      setCollabLoading(false);
-    }
+  // gets updated project after add/delete
+  const handleTeamUpdated = (updatedProjectFields) => {
+    setProject(prev => ({ ...prev, collaborators: updatedProjectFields.collaborators }));
   };
 
   const handleTaskUpdated = (updatedTask) => {
@@ -225,41 +210,39 @@ const ProjectDetail = () => {
           <p className="project-detail-desc">{project.description}</p>
         )}
 
-        {/* team project - owner n collab */}
+        {/* team project - team modal w full list */}
         <div className="project-team">
-          <div className="team-members">
+          <button
+            type="button"
+            className="team-members team-members-trigger"
+            onClick={() => setShowTeamModal(true)}
+            title="View team"
+          >
             <span className="team-label">Team:</span>
-            <div className="team-avatar owner-avatar" title="Owner">
+            <div className="team-avatar owner-avatar">
               {currentUser?.id === project.owner ? (currentUser?.name?.charAt(0).toUpperCase() || 'O') : 'O'}
             </div>
-            {(project.collaborators || []).map((c) => (
+            {(project.collaborators || []).slice(0, 4).map((c) => (
               <div key={c._id} className="team-avatar" title={`${c.name} (${c.email})`}>
                 {c.name?.charAt(0).toUpperCase()}
               </div>
             ))}
-          </div>
-
-          {currentUser?.id === project.owner && (
-            <form className="add-collaborator-form" onSubmit={handleAddCollaborator}>
-              <input
-                type="email"
-                placeholder="Add teammate by email"
-                value={collabEmail}
-                onChange={(e) => setCollabEmail(e.target.value)}
-                className="add-collaborator-input"
-              />
-              <button
-                type="submit"
-                className="btn btn-outline btn-sm"
-                disabled={collabLoading || !collabEmail.trim()}
-              >
-                {collabLoading ? 'Adding...' : '+ Add'}
-              </button>
-            </form>
-          )}
-          {collabError && <p className="collab-error">{collabError}</p>}
+            {(project.collaborators || []).length > 4 && (
+              <div className="team-avatar team-avatar-more">
+                +{project.collaborators.length - 4}
+              </div>
+            )}
+          </button>
         </div>
       </div>
+
+      {showTeamModal && (
+        <TeamModal
+          project={project}
+          onClose={() => setShowTeamModal(false)}
+          onTeamUpdated={handleTeamUpdated}
+        />
+      )}
 
       {/* stats */}
       <div className="project-stats-grid">

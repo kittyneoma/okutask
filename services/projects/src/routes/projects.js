@@ -8,7 +8,8 @@ const {
   deleteProject,
   toggleArchive,
   addCollaborator,
-  getProjectStats
+  getProjectStats,
+  removeCollaborator
 } = require('../controllers/projectController');
 const { protect } = require('../../../../shared/middleware/auth');
 const { projectValidation, updateProjectValidation } = require('../../../../shared/middleware/validator');
@@ -28,6 +29,7 @@ router.route('/:id')
 
 router.put('/:id/archive', toggleArchive);
 router.post('/:id/collaborators', addCollaborator);
+router.delete('/:id/colaborators/:userId', removeCollaborator);
 router.get('/:id/stats', getProjectStats);
 
 module.exports = router;

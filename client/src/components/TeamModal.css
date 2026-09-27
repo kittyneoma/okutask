@@ -1,0 +1,132 @@
+.team-modal-container {
+  max-width: 420px;
+  padding: var(--spacing-xl);
+}
+
+.team-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+}
+
+.team-modal-header h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.team-modal-close {
+  background: none;
+  border: none;
+  font-size: var(--text-lg);
+  color: var(--text-light);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.team-modal-close:hover {
+  color: var(--text-primary);
+}
+
+.team-modal-list {
+  list-style: none;
+  margin: 0 0 var(--spacing-md);
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.team-modal-member {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.team-modal-member:last-child {
+  border-bottom: none;
+}
+
+.team-modal-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--secondary);
+  color: #fff;
+  font-weight: var(--font-bold);
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.owner-avatar {
+  background: var(--dark);
+}
+
+.team-modal-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.team-modal-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-modal-role {
+  font-size: var(--text-xs);
+  color: var(--text-light);
+}
+
+.team-modal-remove {
+  background: transparent;
+  border: 1px solid var(--error);
+  color: var(--error);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.team-modal-remove:hover {
+  background: var(--error);
+  color: #fff;
+}
+
+.team-modal-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.team-modal-empty {
+  color: var(--text-light);
+  font-size: var(--text-sm);
+  padding: var(--spacing-md) 0;
+}
+
+.team-modal-error {
+  color: var(--error);
+  font-size: var(--text-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.team-modal-add-form {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.team-modal-add-form .input {
+  flex: 1;
+}

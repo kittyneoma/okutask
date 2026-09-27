@@ -72,6 +72,16 @@ const projectService = {
     }
   },
 
+  // removes collaborator
+  removeCollaborator: async (projectId, userId) => {
+    try {
+      const response = await api.delete(`/projects/${projectId}/collaborators/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // gets project stats
   getProjectStats: async (id) => {
     try {

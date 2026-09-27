@@ -17,6 +17,7 @@ const Chat = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageError, setImageError] = useState('');
   const [typingUsers, setTypingUsers] =useState([]);
+  const [lighboxImage, setLighboxImage] = useState(null);
 
   const socketRef  = useRef(null);
   const bottomRef  = useRef(null);
@@ -208,7 +209,12 @@ const Chat = () => {
                   )}
                   <div className={`message-bubble ${own ? 'bubble-own' : 'bubble-other'}`}>
                     {msg.image && (
-                      <img src={msg.image} alt="shared" className="chat-image" />
+                      <img 
+                        src={msg.image}
+                        alt="shared"
+                        className="chat-image"
+                        onClick={() => setLighboxImage=(msg.image)} 
+                      />
                     )}
                     {msg.text && <p>{msg.text}</p>}
                   </div>
@@ -278,6 +284,20 @@ const Chat = () => {
         </div>
 
       </div>
+
+      {/* lighbox - msg img 2 full size */}
+      {lighboxImage && (
+        <div className="lighbox-overlay" onClick={() => setLighboxImage(null)}>
+          <img src={lighboxImage} alt="shared full size" className="lighbox-image" />
+          <button 
+            className="lightbox-close"
+            onClick={() => setLighboxImage(null)}
+            title="Close"
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 };
