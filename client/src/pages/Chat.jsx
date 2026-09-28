@@ -97,12 +97,22 @@ const Chat = () => {
 
   // shows "typing" w throttle n "stops typing" after 2s of inactivity
   const handleTextChange = (e) => {
-    setText(e.target.value);
+    const value = e.target.value;
+    setText(value);
+
     if (!connected) return;
+
+    if (!value.trim()) {
+      stopTyping();
+      return;
+    }
 
     socketRef.current.emit('chat:typing',  { isTyping: true });
 
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
     typingTimeoutRef.current = setTimeout(stopTyping, 2000);
   };
 
@@ -229,7 +239,7 @@ const Chat = () => {
         {/* "typing" indicator */}
         {typingUsers.length > 0 && (
           <div className="typing-indicator">
-            {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing ...
+            {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
           </div>
         )}
 
