@@ -1,8 +1,10 @@
+// simple in-memory caching for Gateway GET responses
+
 const store = new Map();
 
 function buildKey(req) {
-  // separates the cache by user to avoid leaking
-  // data from one user to another and by the exact requested URL query
+  // separates the cache by user via the Authorization header to avoid leaking
+  // data from one user to another n by the exact requested URL+query.
   const auth = req.headers.authorization || 'anon';
   return `${auth}:${req.originalUrl}`;
 }
@@ -22,6 +24,7 @@ function cacheMiddleware(ttlMs = 15000) {
     }
 
     // express-http-proxy writes the response using res.write/res.end
+    const chunks = [];
     const originalWrite = res.write.bind(res);
     const originalEnd = res.end.bind(res);
 
@@ -35,10 +38,12 @@ function cacheMiddleware(ttlMs = 15000) {
       if (res.statusCode >= 200 && res.statusCode < 300 && chunks.length) {
         store.set(key, { body: Buffer.concat(chunks), status: res.statusCode, expiresAt: now + ttlMs });
       }
-      res.set('X-Cache', 'MISS');
       return originalEnd(chunk, ...args);
     };
 
+    // header is set b4 proceeding n once the proxy starts writing
+    // the response res.write the headers have already been sent and cannot be modified
+    res.set('X-Cache', 'MISS');
     next();
   };
 }

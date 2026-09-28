@@ -277,7 +277,7 @@ exports.removeCollaborator = async (req, res, next) => {
     if (!project) {
       return res.status(404).json({
         success: false,
-        message: 'Projects not found'
+        message: 'Project not found'
       });
     }
 
@@ -290,7 +290,7 @@ exports.removeCollaborator = async (req, res, next) => {
 
     const wasCollaborator = project.collaborators.some((c) => c.toString() === userId);
     if (!wasCollaborator) {
-      return res.status(400).json({ succes: false, message: 'User is not a collaborator' });
+      return res.status(400).json({ success: false, message: 'User is not a collaborator' });
     }
 
     project.collaborators = project.collaborators.filter((c) => c.toString() !== userId);

@@ -159,6 +159,130 @@ describe('Projects Service', () => {
 
       expect(res.statusCode).toBe(200);
     });
+
+    test('The project now appears in the collaborators own project list', async () => {
+      const res = await request(app).get('/projects').set('Authorization', `Bearer ${otherToken}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.data.projects.some((p) => p._id === projectId)).toBe(true);
+    });
+
+    test('The list response includes the populated team members', async () => {
+      const res = await request(app).get('/projects').set('Authorization', `Bearer ${ownerToken}`);
+      const project = res.body.data.projects.find((p) => p._id === projectId);
+
+      expect(project.collaborators.some((c) => c._id === otherUser._id.toString())).toBe(true);
+      expect(project.collaborators[0].name).toBeDefined();
+      expect(project.collaborators[0].email).toBeDefined();
+    });
+  });
+
+  describe('GET /projects?status= (dashboard status filter)', () => {
+    // the project was set to 'on-hold' in the PUT /projects/:id tests above
+    test('Returns the project when filtering by its real status', async () => {
+      const res = await request(app)
+        .get('/projects?status=on-hold')
+        .set('Authorization', `Bearer ${ownerToken}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.data.projects.some((p) => p._id === projectId)).toBe(true);
+      expect(res.body.data.projects.every((p) => p.status === 'on-hold')).toBe(true);
+    });
+
+    test('Does not return the project when filtering by a different status', async () => {
+      const res = await request(app)
+        .get('/projects?status=active')
+        .set('Authorization', `Bearer ${ownerToken}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.data.projects.some((p) => p._id === projectId)).toBe(false);
+    });
+
+    test('The filter also applies to projects where the user is a collaborator', async () => {
+      const match = await request(app)
+        .get('/projects?status=on-hold')
+        .set('Authorization', `Bearer ${otherToken}`);
+      const noMatch = await request(app)
+        .get('/projects?status=completed')
+        .set('Authorization', `Bearer ${otherToken}`);
+
+      expect(match.body.data.projects.some((p) => p._id === projectId)).toBe(true);
+      expect(noMatch.body.data.projects.some((p) => p._id === projectId)).toBe(false);
+    });
+  });
+
+  describe('DELETE /projects/:id/collaborators/:userId', () => {
+    test('Requires authentication', async () => {
+      const res = await request(app)
+        .delete(`/projects/${projectId}/collaborators/${otherUser._id}`);
+      expect(res.statusCode).toBe(401);
+    });
+
+    test('Responds with 404 for a non-existent project', async () => {
+      const fakeId = '64b64f1234567890abcdef12';
+      const res = await request(app)
+        .delete(`/projects/${fakeId}/collaborators/${otherUser._id}`)
+        .set('Authorization', `Bearer ${ownerToken}`);
+      expect(res.statusCode).toBe(404);
+    });
+
+    test('A collaborator cannot remove members (only the owner can)', async () => {
+      const res = await request(app)
+        .delete(`/projects/${projectId}/collaborators/${otherUser._id}`)
+        .set('Authorization', `Bearer ${otherToken}`);
+
+      expect(res.statusCode).toBe(403);
+
+      // n they still have access afterwards
+      const stillIn = await request(app)
+        .get(`/projects/${projectId}`)
+        .set('Authorization', `Bearer ${otherToken}`);
+      expect(stillIn.statusCode).toBe(200);
+    });
+
+    test('Rejects removing a user who is not a collaborator', async () => {
+      const notMember = '64b64f1234567890abcdef99';
+      const res = await request(app)
+        .delete(`/projects/${projectId}/collaborators/${notMember}`)
+        .set('Authorization', `Bearer ${ownerToken}`);
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    test('The owner can remove a collaborator', async () => {
+      const res = await request(app)
+        .delete(`/projects/${projectId}/collaborators/${otherUser._id}`)
+        .set('Authorization', `Bearer ${ownerToken}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(
+        res.body.data.project.collaborators.some((c) => c._id === otherUser._id.toString())
+      ).toBe(false);
+    });
+
+    test('A removed collaborator loses access to the project', async () => {
+      const res = await request(app)
+        .get(`/projects/${projectId}`)
+        .set('Authorization', `Bearer ${otherToken}`);
+
+      expect(res.statusCode).toBe(403);
+    });
+
+    test('A removed collaborator no longer sees the project in their list', async () => {
+      const res = await request(app).get('/projects').set('Authorization', `Bearer ${otherToken}`);
+
+      expect(res.body.data.projects.some((p) => p._id === projectId)).toBe(false);
+    });
+
+    test('The same user can be added again after being removed', async () => {
+      const res = await request(app)
+        .post(`/projects/${projectId}/collaborators`)
+        .set('Authorization', `Bearer ${ownerToken}`)
+        .send({ userId: otherUser._id.toString() });
+
+      expect(res.statusCode).toBe(200);
+    });
   });
 
   describe('PUT /projects/:id/archive', () => {

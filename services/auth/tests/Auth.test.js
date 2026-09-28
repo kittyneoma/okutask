@@ -101,6 +101,62 @@ describe('Auth Service', () => {
     });
   });
 
+  describe('GET /auth/users/lookup (search teammate by email)', () => {
+    test('Finds a user by exact email and returns only public fields', async () => {
+      const res = await request(app)
+        .get('/auth/users/lookup')
+        .set('Authorization', `Bearer ${authToken}`)
+        .query({ email: testUser.email });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.user.email).toBe(testUser.email);
+      expect(res.body.data.user.name).toBe(testUser.name);
+      expect(res.body.data.user.id).toBeDefined();
+      expect(res.body.data.user.avatar).toBeDefined();
+      // never leaks sensitive data
+      expect(res.body.data.user.password).toBeUndefined();
+      expect(Object.keys(res.body.data.user).sort()).toEqual(['avatar', 'email', 'id', 'name']);
+    });
+
+    test('Ignores upper case letters and surrounding spaces in the email', async () => {
+      const res = await request(app)
+        .get('/auth/users/lookup')
+        .set('Authorization', `Bearer ${authToken}`)
+        .query({ email: `  ${testUser.email.toUpperCase()}  ` });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.data.user.email).toBe(testUser.email);
+    });
+
+    test('Responds 404 when no user has that email', async () => {
+      const res = await request(app)
+        .get('/auth/users/lookup')
+        .set('Authorization', `Bearer ${authToken}`)
+        .query({ email: `nobody_${Date.now()}@test.com` });
+
+      expect(res.statusCode).toBe(404);
+      expect(res.body.success).toBe(false);
+    });
+
+    test('Responds 400 when the email query param is missing', async () => {
+      const res = await request(app)
+        .get('/auth/users/lookup')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.statusCode).toBe(400);
+      expect(res.body.success).toBe(false);
+    });
+
+    test('Requires authentication (prevents anonymous email enumeration)', async () => {
+      const res = await request(app)
+        .get('/auth/users/lookup')
+        .query({ email: testUser.email });
+
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
   describe('PUT /auth/profile', () => {
     test('Updates name of authenticated profile', async () => {
       const res = await request(app)

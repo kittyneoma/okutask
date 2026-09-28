@@ -82,3 +82,59 @@ test('Show system messages for when users joins/leaves', async ({ browser }) => 
         page1.getByText('Chiikawa left the chat')
     ).toBeVisible();
 });
+
+test('Shows typing indicator between users in real time', async ({ browser }) => {
+const email1 = `typing1_${Date.now()}@test.com`;
+const email2 = `typing2_${Date.now()}@test.com`;
+
+const page1 = await browser.newPage();
+const page2 = await browser.newPage();
+
+await register(
+    page1,
+    'Miku',
+    email1,
+    'Test1234'
+);
+
+await register(
+    page2,
+    'Chiikawa',
+    email2,
+    'Test1234'
+);
+
+await page1.goto('http://localhost:5173/chat');
+await page2.goto('http://localhost:5173/chat');
+
+await expect(
+    page1.locator('.connection-status.online')
+).toBeVisible();
+
+await expect(
+    page2.locator('.connection-status.online')
+).toBeVisible();
+
+// user 1 starts typing
+await page1.fill(
+    '.chat-input',
+    'Hello, I am typing...'
+);
+
+// user 2 should see the typing indicator
+await expect(
+    page2.getByText('Miku is typing...')
+).toBeVisible();
+
+// user 1 stops typing
+await page1.fill(
+    '.chat-input',
+    ''
+);
+
+// the indicator should disappear
+await expect(
+    page2.getByText('Miku is typing...')
+).not.toBeVisible();
+
+});

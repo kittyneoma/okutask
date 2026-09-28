@@ -26,12 +26,15 @@ describe('API Gateway', () => {
 
   describe('Rate limiting', () => {
     test('Health check does not count towards the general limit (explicitly excluded)', async () => {
-      // the gateway excludes /api/health from the global rate limiter; 
-      // // multiple consecutive calls should not return a 429
-      const results = await Promise.all(
-        Array.from({ length: 5 }, () => request(app).get('/api/health'))
-      );
-      results.forEach((res) => expect(res.statusCode).toBe(200));
+      // the limiter allows 150 requests per 15 min per IP
+      // sending more than that to /api/health must still return 200 every time
+      // because that route is skipped by the limiter
+      const statuses = [];
+      for (let i = 0; i < 160; i++) {
+        const res = await request(app).get('/api/health');
+        statuses.push(res.statusCode);
+      }
+      expect(statuses.every((code) => code === 200)).toBe(true);
     });
   });
 

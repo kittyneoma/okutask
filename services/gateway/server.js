@@ -28,6 +28,7 @@ app.use(cors(({
 })));
 app.use(morgan('dev'));
 app.use(express.json());
+// gzip/brotli compression de todas las respuestas (reduce tamano de payload en la red)
 app.use(compression());
 
 // limiting rate 150 / 15 by ip
@@ -37,6 +38,8 @@ const limiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: 'Too many requests, try again later'},
+    // el health check es consultado cada pocos minutos por el monitoreo
+    // externo (UptimeRobot) y no debe consumir cupo de peticiones reales
     skip: (req) => req.path === '/api/health',
 });
 app.use(limiter);
@@ -76,13 +79,14 @@ app.use('/api/projects/:projectId/tasks', (req, res, next) => {
         proxyReqPathResolver: () => `/projects/${projectId}/tasks${req.url === '/' ? '' : req.url}`,
         proxyErrorHandler: (err, res) => {
             console.error('[Gateway Tasks Service Error:', err.message);
-            res.status(503).json({ succes: false, message: 'Tasks Service unavailable' });
+            res.status(503).json({ success: false, message: 'Tasks Service unavailable' });
         },
     })(req, res, next);
 });
 
 // projects service
-app.use('/api/projects', makeProxy(SERVICES.projects, '/projects'));
+// 15-second in-memory cache for the project list
+app.use('/api/projects', cacheMiddleware(15000), makeProxy(SERVICES.projects, '/projects'));
 
 // tasks service
 app.use('/api/tasks', makeProxy(SERVICES.tasks, '/tasks'));
@@ -92,7 +96,7 @@ app.use('/api/notifications', makeProxy(SERVICES.notifications, ''));
 
 // route not found
 app.use((req, res) => {
-    res.status(404).json({ succes: false, message: `Route not found - ${req.originalUrl}`});
+    res.status(404).json({ success: false, message: `Route not found - ${req.originalUrl}`});
 });
 
 // load
