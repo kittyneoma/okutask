@@ -38,9 +38,7 @@ const limiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: 'Too many requests, try again later'},
-    // el health check es consultado cada pocos minutos por el monitoreo
-    // externo (UptimeRobot) y no debe consumir cupo de peticiones reales
-    skip: (req) => req.path === '/api/health',
+    //skip: (req) => req.path === '/api/health',
 });
 app.use(limiter);
 

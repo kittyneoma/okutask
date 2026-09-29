@@ -4,7 +4,7 @@ const store = new Map();
 
 function buildKey(req) {
   // separates the cache by user via the Authorization header to avoid leaking
-  // data from one user to another n by the exact requested URL+query.
+  // data from one user to another n by the exact requested URL+query
   const auth = req.headers.authorization || 'anon';
   return `${auth}:${req.originalUrl}`;
 }
